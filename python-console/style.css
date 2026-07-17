@@ -1,0 +1,354 @@
+:root {
+  --ink: #18211e;
+  --paper: #f3f0e8;
+  --acid: #c7f36b;
+  --blue: #668fa3;
+  --terminal: #17201d;
+  --terminal-raised: #202b27;
+  --terminal-text: #e8ede8;
+  --terminal-muted: #9aaba3;
+  --terminal-line: rgba(232, 237, 232, 0.15);
+  --danger: #ff9c83;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+}
+
+body {
+  margin: 0;
+  background:
+    linear-gradient(110deg, transparent 64%, rgba(199, 243, 107, 0.28) 64%),
+    var(--paper);
+  color: var(--ink);
+  font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+  line-height: 1.7;
+}
+
+button,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+::selection {
+  background: var(--acid);
+  color: var(--ink);
+}
+
+.console-shell {
+  width: min(1180px, 100%);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 5vw, 4.5rem);
+}
+
+.app-header {
+  margin-bottom: clamp(2.5rem, 7vw, 5rem);
+}
+
+.back-link {
+  color: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.back-link:hover,
+.back-link:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 0.35em;
+}
+
+.title-row {
+  display: flex;
+  gap: 3rem;
+  align-items: end;
+  justify-content: space-between;
+  margin-top: clamp(2rem, 6vw, 4rem);
+}
+
+.eyebrow {
+  margin: 0 0 0.8rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+h1 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(3.8rem, 10vw, 8.5rem);
+  font-weight: 400;
+  letter-spacing: -0.065em;
+  line-height: 0.78;
+}
+
+.description {
+  max-width: 360px;
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.terminal {
+  overflow: hidden;
+  border: 1px solid var(--ink);
+  background: var(--terminal);
+  box-shadow: 12px 12px 0 rgba(102, 143, 163, 0.38);
+  color: var(--terminal-text);
+}
+
+.terminal-bar {
+  display: flex;
+  min-height: 58px;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 0.8rem 0.65rem 1.2rem;
+  border-bottom: 1px solid var(--terminal-line);
+  background: var(--terminal-raised);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+}
+
+.status-wrap,
+.terminal-actions {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.status-dot {
+  width: 0.62rem;
+  height: 0.62rem;
+  border-radius: 50%;
+  background: #f1ce7a;
+  box-shadow: 0 0 0 4px rgba(241, 206, 122, 0.12);
+}
+
+.status-dot.ready {
+  background: var(--acid);
+  box-shadow: 0 0 0 4px rgba(199, 243, 107, 0.12);
+}
+
+.status-dot.busy {
+  animation: pulse 1s ease-in-out infinite alternate;
+  background: #f1ce7a;
+}
+
+.status-dot.error {
+  background: var(--danger);
+  box-shadow: 0 0 0 4px rgba(255, 156, 131, 0.12);
+}
+
+.terminal-actions button {
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--terminal-line);
+  background: transparent;
+  color: var(--terminal-text);
+  font-size: 0.7rem;
+}
+
+.terminal-actions button:hover:not(:disabled),
+.terminal-actions button:focus-visible {
+  border-color: var(--acid);
+  color: var(--acid);
+}
+
+.terminal-actions button:focus-visible,
+.run-button:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--acid);
+  outline-offset: 2px;
+}
+
+.terminal-actions button:disabled {
+  opacity: 0.38;
+}
+
+.terminal-actions .stop-button:not(:disabled) {
+  border-color: rgba(255, 156, 131, 0.65);
+  color: var(--danger);
+}
+
+.transcript {
+  height: clamp(340px, 48vh, 570px);
+  overflow-y: auto;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  scrollbar-color: var(--blue) var(--terminal-raised);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: clamp(0.82rem, 1.5vw, 0.96rem);
+  line-height: 1.6;
+}
+
+.system-message {
+  display: flex;
+  gap: 0.65rem;
+  color: var(--terminal-muted);
+}
+
+.system-message.error {
+  color: var(--danger);
+}
+
+.system-message.success {
+  color: var(--acid);
+}
+
+.system-mark {
+  flex: 0 0 auto;
+}
+
+.console-entry,
+.output {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.console-entry + .console-entry,
+.console-entry + .output,
+.output + .console-entry,
+.output + .output,
+.system-message + .console-entry,
+.system-message + .output,
+.output + .system-message,
+.console-entry + .system-message {
+  margin-top: 0.4rem;
+}
+
+.entry-prompt {
+  color: var(--acid);
+  user-select: none;
+}
+
+.output.stderr {
+  color: var(--danger);
+}
+
+.console-form {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: start;
+  min-height: 68px;
+  padding: 0.9rem clamp(1.25rem, 3vw, 2rem);
+  border-top: 1px solid var(--terminal-line);
+  background: var(--terminal-raised);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.prompt {
+  padding-top: 0.42rem;
+  color: var(--acid);
+  font-weight: 700;
+}
+
+textarea {
+  width: 100%;
+  max-height: 9.5rem;
+  resize: none;
+  overflow-y: auto;
+  border: 0;
+  background: transparent;
+  color: var(--terminal-text);
+  line-height: 1.55;
+  outline: none;
+}
+
+textarea:disabled {
+  opacity: 0.5;
+}
+
+.run-button {
+  padding: 0.42rem 0.75rem;
+  border: 1px solid var(--acid);
+  background: var(--acid);
+  color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.run-button:disabled {
+  border-color: var(--terminal-line);
+  background: transparent;
+  color: var(--terminal-muted);
+  opacity: 0.6;
+}
+
+.below-terminal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2rem;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  font-size: 0.72rem;
+}
+
+.below-terminal p {
+  margin: 0;
+}
+
+.below-terminal code {
+  padding: 0.1em 0.35em;
+  background: rgba(24, 33, 30, 0.08);
+}
+
+@keyframes pulse {
+  to {
+    opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-dot.busy {
+    animation: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .title-row {
+    display: block;
+  }
+
+  .description {
+    margin-top: 2rem;
+  }
+
+  .terminal-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .terminal-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .terminal-actions button {
+    min-height: 2.5rem;
+  }
+
+  .console-form {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .run-button {
+    display: none;
+  }
+}

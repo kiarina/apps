@@ -5,6 +5,7 @@ Static web apps published directly from the repository root with GitHub Pages.
 ## Routes
 
 - `/` — app index
+- `/python-console/` — WebAssembly-powered interactive Python console
 - `/<app-name>/` — each static app
 
 The production URL is:
@@ -25,5 +26,8 @@ python3 -m http.server 8000
 Open `http://localhost:8000/`. No shared build step or package installation is
 required. If an app needs a build step, commit its generated static files to its
 app directory.
+
+The Python console downloads its pinned Pyodide runtime and compatible imported
+packages from the jsDelivr CDN on first use, so it requires a network connection.
 
 GitHub Pages uses `main` and `/(root)` as its publishing source.

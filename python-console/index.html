@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="WebAssembly でブラウザ内実行する対話型 Python コンソール。">
+    <title>Python Console — Kiarina Apps</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <main class="console-shell">
+      <header class="app-header">
+        <a class="back-link" href="../">← Apps</a>
+        <div class="title-row">
+          <div>
+            <p class="eyebrow">WEBASSEMBLY / PYODIDE</p>
+            <h1>Python<br>Console</h1>
+          </div>
+          <p class="description">コードはすべてブラウザ内で実行されます。<br>初回の起動には少し時間がかかります。</p>
+        </div>
+      </header>
+
+      <section class="terminal" aria-label="Python コンソール">
+        <header class="terminal-bar">
+          <div class="status-wrap">
+            <span id="status-dot" class="status-dot" aria-hidden="true"></span>
+            <span id="status-text">起動中…</span>
+          </div>
+          <div class="terminal-actions">
+            <button id="clear-button" type="button">出力を消去</button>
+            <button id="restart-button" type="button">再起動</button>
+            <button id="stop-button" class="stop-button" type="button" disabled>実行を停止</button>
+          </div>
+        </header>
+
+        <div id="transcript" class="transcript" role="log" aria-live="polite" aria-relevant="additions">
+          <div class="system-message">
+            <span class="system-mark">◇</span>
+            <span>Python ランタイムを読み込んでいます…</span>
+          </div>
+        </div>
+
+        <form id="console-form" class="console-form">
+          <label id="prompt" class="prompt" for="console-input">&gt;&gt;&gt;</label>
+          <textarea
+            id="console-input"
+            rows="1"
+            enterkeyhint="send"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            aria-describedby="input-help"
+            disabled
+          ></textarea>
+          <button class="run-button" type="submit" disabled>実行 <span aria-hidden="true">↵</span></button>
+        </form>
+      </section>
+
+      <div class="below-terminal">
+        <p id="input-help">Enter で実行 · ↑ ↓ で履歴 · 複数行構文は空行で確定</p>
+        <p><code>input()</code> には対応していません。</p>
+      </div>
+    </main>
+
+    <script>
+      if (location.protocol === "file:") {
+        const statusDot = document.querySelector("#status-dot");
+        const statusText = document.querySelector("#status-text");
+        const transcript = document.querySelector("#transcript");
+        const initialMessage = transcript.querySelector(".system-message span:last-child");
+
+        statusDot.classList.add("error");
+        statusText.textContent = "HTTP サーバーが必要です";
+        initialMessage.textContent =
+          "file:// からは WebAssembly Worker を起動できません。" +
+          "リポジトリのルートで `python -m http.server 8000` を実行し、" +
+          "http://localhost:8000/python-console/ を開いてください。";
+        transcript.querySelector(".system-message").classList.add("error");
+      } else {
+        const appScript = document.createElement("script");
+        appScript.type = "module";
+        appScript.src = "./app.js";
+        document.body.append(appScript);
+      }
+    </script>
+  </body>
+</html>
