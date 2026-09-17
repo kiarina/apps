@@ -1,6 +1,7 @@
 const COLS = 3;
 const ROWS = 4;
 const IDLE_COLUMN = 1;
+const PIXEL_ART_LIMIT = 96;
 
 const SEQUENCES = {
   pingpong: [0, 1, 2, 1],
@@ -67,6 +68,7 @@ const stripContexts = elements.stripCanvases.map((canvas) => ({
 let sheet = null;
 let frameWidth = 0;
 let frameHeight = 0;
+let frameCache = new Map();
 let direction = "down";
 let playing = true;
 let elapsed = 0;
@@ -135,49 +137,77 @@ function paintBackground(context, width, height) {
   }
 }
 
+function cellRect(dir, column) {
+  const cellWidth = sheet.naturalWidth / COLS;
+  const cellHeight = sheet.naturalHeight / ROWS;
+  const row = rowForDirection(dir);
+  const x = Math.round(column * cellWidth);
+  const y = Math.round(row * cellHeight);
+
+  return {
+    x,
+    y,
+    width: Math.round((column + 1) * cellWidth) - x,
+    height: Math.round((row + 1) * cellHeight) - y,
+  };
+}
+
+// 1 コマを等倍のオフスクリーンへ切り出してから拡大する。
+// シートを直接拡大すると、補間が隣のコマの端を拾って上下に線が出る。
+function frameCanvas(dir, column) {
+  const key = `${elements.rowOrder.value}:${dir}:${column}`;
+  const cached = frameCache.get(key);
+
+  if (cached) {
+    return cached;
+  }
+
+  const rect = cellRect(dir, column);
+  const canvas = document.createElement("canvas");
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+
+  const context = canvas.getContext("2d");
+  context.imageSmoothingEnabled = false;
+  context.drawImage(sheet, rect.x, rect.y, rect.width, rect.height, 0, 0, rect.width, rect.height);
+  frameCache.set(key, canvas);
+  return canvas;
+}
+
 function drawSprite(context, dir, column, centerX, centerY, scale) {
-  const sourceX = column * frameWidth;
-  const sourceY = rowForDirection(dir) * frameHeight;
-  const drawWidth = frameWidth * scale;
-  const drawHeight = frameHeight * scale;
+  const frame = frameCanvas(dir, column);
+  const drawWidth = Math.round(frame.width * scale);
+  const drawHeight = Math.round(frame.height * scale);
+  const drawX = Math.round(centerX - drawWidth / 2);
+  const drawY = Math.round(centerY - drawHeight / 2);
 
   context.save();
   context.imageSmoothingEnabled = !elements.pixelated.checked;
-  context.translate(centerX, centerY);
 
   if (elements.mirror.checked) {
+    context.translate(drawX + drawWidth, drawY);
     context.scale(-1, 1);
+    context.drawImage(frame, 0, 0, drawWidth, drawHeight);
+  } else {
+    context.drawImage(frame, drawX, drawY, drawWidth, drawHeight);
   }
 
-  context.drawImage(
-    sheet,
-    sourceX,
-    sourceY,
-    frameWidth,
-    frameHeight,
-    -drawWidth / 2,
-    -drawHeight / 2,
-    drawWidth,
-    drawHeight,
-  );
   context.restore();
 
   if (elements.grid.checked) {
     context.save();
     context.strokeStyle = "rgba(199, 243, 107, 0.85)";
     context.lineWidth = 1;
-    context.strokeRect(
-      Math.round(centerX - drawWidth / 2) + 0.5,
-      Math.round(centerY - drawHeight / 2) + 0.5,
-      Math.round(drawWidth) - 1,
-      Math.round(drawHeight) - 1,
-    );
+    context.strokeRect(drawX + 0.5, drawY + 0.5, drawWidth - 1, drawHeight - 1);
     context.restore();
   }
 }
 
 function fitScale(width, height, margin) {
-  return Math.min((width - margin) / frameWidth, (height - margin) / frameHeight);
+  const scale = Math.min((width - margin) / frameWidth, (height - margin) / frameHeight);
+
+  // ドット絵は整数倍でないとピクセルの大きさが揃わない
+  return elements.pixelated.checked && scale > 1 ? Math.floor(scale) : scale;
 }
 
 function drawStage() {
@@ -263,6 +293,8 @@ function loadImage(source, label) {
     sheet = image;
     frameWidth = image.naturalWidth / COLS;
     frameHeight = image.naturalHeight / ROWS;
+    frameCache = new Map();
+    elements.pixelated.checked = Math.max(frameWidth, frameHeight) <= PIXEL_ART_LIMIT;
     position = { x: 0, y: 0 };
     elapsed = 0;
     elements.placeholder.classList.add("hidden");
