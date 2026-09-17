@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="3×4 のキャラクタースプライトシートを読み込んで、上下左右の歩行アニメーションを確認するツール。">
+    <title>Sprite Walker — Kiarina Apps</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <a class="back-link" href="../">← Apps</a>
+        <div class="title-row">
+          <div>
+            <p class="eyebrow">SPRITE SHEET / 3 × 4</p>
+            <h1>Sprite<br>Walker</h1>
+          </div>
+          <p class="description">スプライトシートを読み込むと、3×4 に分割して歩行アニメーションを再生します。<br>画像はブラウザ内だけで処理され、どこにも送信されません。</p>
+        </div>
+      </header>
+
+      <section id="dropzone" class="stage-wrap" aria-label="プレビュー">
+        <canvas id="stage" class="stage"></canvas>
+
+        <div id="placeholder" class="placeholder">
+          <p class="placeholder-mark" aria-hidden="true">⤓</p>
+          <p class="placeholder-title">スプライトシートをドロップ</p>
+          <p class="placeholder-note">クリックでファイルを選択 / ⌘V で貼り付けも可</p>
+        </div>
+
+        <div class="dpad" role="group" aria-label="向き">
+          <button type="button" class="dpad-btn up" data-dir="up" aria-label="上を向く">▲</button>
+          <button type="button" class="dpad-btn left" data-dir="left" aria-label="左を向く">◀</button>
+          <button type="button" class="dpad-btn right" data-dir="right" aria-label="右を向く">▶</button>
+          <button type="button" class="dpad-btn down" data-dir="down" aria-label="下を向く">▼</button>
+        </div>
+
+        <p id="sheet-info" class="sheet-info" aria-live="polite"></p>
+      </section>
+
+      <section class="strip" aria-label="全方向">
+        <figure class="strip-item">
+          <canvas class="strip-canvas" data-dir="down"></canvas>
+          <figcaption>下 / DOWN</figcaption>
+        </figure>
+        <figure class="strip-item">
+          <canvas class="strip-canvas" data-dir="left"></canvas>
+          <figcaption>左 / LEFT</figcaption>
+        </figure>
+        <figure class="strip-item">
+          <canvas class="strip-canvas" data-dir="right"></canvas>
+          <figcaption>右 / RIGHT</figcaption>
+        </figure>
+        <figure class="strip-item">
+          <canvas class="strip-canvas" data-dir="up"></canvas>
+          <figcaption>上 / UP</figcaption>
+        </figure>
+      </section>
+
+      <section class="controls" aria-label="設定">
+        <div class="control-row">
+          <button id="open-button" class="primary-button" type="button">シートを開く</button>
+          <button id="play-button" class="primary-button" type="button">停止</button>
+          <input id="file-input" type="file" accept="image/*" hidden>
+        </div>
+
+        <div class="control-grid">
+          <label class="control">
+            <span class="control-label">速度 <output id="fps-out">8</output> fps</span>
+            <input id="fps" type="range" min="1" max="24" step="1" value="8">
+          </label>
+
+          <label class="control">
+            <span class="control-label">拡大 <output id="zoom-out">自動</output></span>
+            <input id="zoom" type="range" min="0" max="8" step="0.25" value="0">
+          </label>
+
+          <label class="control">
+            <span class="control-label">コマ順</span>
+            <select id="pattern">
+              <option value="pingpong">左 → 中 → 右 → 中（往復）</option>
+              <option value="loop">左 → 中 → 右（ループ）</option>
+              <option value="reverse">右 → 中 → 左（逆ループ）</option>
+            </select>
+          </label>
+
+          <label class="control">
+            <span class="control-label">行の向き</span>
+            <select id="row-order">
+              <option value="down,left,right,up">下 / 左 / 右 / 上</option>
+              <option value="down,up,left,right">下 / 上 / 左 / 右</option>
+              <option value="down,right,left,up">下 / 右 / 左 / 上</option>
+              <option value="up,right,down,left">上 / 右 / 下 / 左</option>
+            </select>
+          </label>
+
+          <label class="control">
+            <span class="control-label">背景</span>
+            <select id="background">
+              <option value="checker">チェッカー</option>
+              <option value="paper">明るい</option>
+              <option value="dark">暗い</option>
+              <option value="magenta">マゼンタ</option>
+            </select>
+          </label>
+
+          <div class="control control-checks">
+            <label class="check"><input id="walking" type="checkbox" checked> 歩行アニメ（オフで待機コマ）</label>
+            <label class="check"><input id="moving" type="checkbox"> 画面内を移動させる</label>
+            <label class="check"><input id="pixelated" type="checkbox"> ドット絵として拡大（補間なし）</label>
+            <label class="check"><input id="mirror" type="checkbox"> 左右反転</label>
+            <label class="check"><input id="grid" type="checkbox"> 1 コマの枠を表示</label>
+          </div>
+        </div>
+
+        <p class="hint">← ↑ → ↓ / W A S D で向きを変更 · Space で再生と停止</p>
+      </section>
+
+      <footer class="app-footer">
+        <span>© Kiarina</span>
+        <a href="https://github.com/kiarina/apps">GitHub ↗</a>
+      </footer>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

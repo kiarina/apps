@@ -1,0 +1,357 @@
+:root {
+  --ink: #18211e;
+  --paper: #f3f0e8;
+  --acid: #c7f36b;
+  --blue: #668fa3;
+  --line: rgba(24, 33, 30, 0.16);
+  --stage: #17201d;
+  --stage-text: #e8ede8;
+  --danger: #b3402a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+}
+
+body {
+  margin: 0;
+  background:
+    linear-gradient(110deg, transparent 64%, rgba(199, 243, 107, 0.28) 64%),
+    var(--paper);
+  color: var(--ink);
+  font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+  line-height: 1.7;
+}
+
+button,
+select,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--acid);
+  color: var(--ink);
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  width: min(1180px, 100%);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 5vw, 4.5rem);
+}
+
+.app-header {
+  margin-bottom: clamp(2rem, 6vw, 4rem);
+}
+
+.back-link {
+  color: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.back-link:hover,
+.back-link:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 0.35em;
+}
+
+.title-row {
+  display: flex;
+  gap: 3rem;
+  align-items: end;
+  justify-content: space-between;
+  margin-top: clamp(1.5rem, 5vw, 3.5rem);
+}
+
+.eyebrow {
+  margin: 0 0 0.8rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+h1 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(3.4rem, 9vw, 7.5rem);
+  font-weight: 400;
+  letter-spacing: -0.065em;
+  line-height: 0.78;
+}
+
+.description {
+  max-width: 380px;
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+/* Stage */
+
+.stage-wrap {
+  position: relative;
+  overflow: hidden;
+  min-height: min(62vh, 560px);
+  border: 1px solid var(--ink);
+  background: var(--stage);
+  box-shadow: 12px 12px 0 rgba(102, 143, 163, 0.38);
+  color: var(--stage-text);
+}
+
+.stage-wrap.dragover {
+  box-shadow: 12px 12px 0 var(--acid);
+  outline: 3px dashed var(--acid);
+  outline-offset: -12px;
+}
+
+.stage {
+  display: block;
+  width: 100%;
+  height: min(62vh, 560px);
+}
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.placeholder.hidden {
+  display: none;
+}
+
+.placeholder-mark {
+  margin: 0;
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+.placeholder-title {
+  margin: 0.8rem 0 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  letter-spacing: -0.03em;
+}
+
+.placeholder-note {
+  margin: 0;
+  color: rgba(232, 237, 232, 0.7);
+  font-size: 0.8rem;
+}
+
+.dpad {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  display: grid;
+  grid-template-areas:
+    ". up ."
+    "left . right"
+    ". down .";
+  gap: 0.35rem;
+}
+
+.dpad-btn {
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 1px solid rgba(232, 237, 232, 0.4);
+  background: rgba(23, 32, 29, 0.7);
+  color: var(--stage-text);
+  font-size: 0.8rem;
+  transition: background-color 140ms ease;
+}
+
+.dpad-btn:hover {
+  background: rgba(199, 243, 107, 0.25);
+}
+
+.dpad-btn[aria-pressed="true"] {
+  background: var(--acid);
+  color: var(--ink);
+}
+
+.dpad-btn.up { grid-area: up; }
+.dpad-btn.left { grid-area: left; }
+.dpad-btn.right { grid-area: right; }
+.dpad-btn.down { grid-area: down; }
+
+.sheet-info {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  margin: 0;
+  color: rgba(232, 237, 232, 0.72);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+.sheet-info.error {
+  color: var(--acid);
+}
+
+/* Direction strip */
+
+.strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(0.5rem, 2vw, 1.25rem);
+  margin-top: clamp(1.25rem, 4vw, 2.25rem);
+}
+
+.strip-item {
+  margin: 0;
+  border: 1px solid var(--ink);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.strip-canvas {
+  display: block;
+  width: 100%;
+  height: clamp(110px, 18vw, 190px);
+}
+
+.strip-item figcaption {
+  border-top: 1px solid var(--line);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+
+/* Controls */
+
+.controls {
+  margin-top: clamp(1.5rem, 5vw, 3rem);
+}
+
+.control-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.primary-button {
+  padding: 0.6rem 1.4rem;
+  border: 1px solid var(--ink);
+  background: var(--acid);
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  transition: transform 140ms ease;
+}
+
+.primary-button:hover {
+  transform: translateY(-2px);
+}
+
+.control-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: clamp(1rem, 3vw, 1.75rem);
+  margin-top: 1.5rem;
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.control-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.control select {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--ink);
+  background: rgba(255, 255, 255, 0.7);
+  color: inherit;
+  font-size: 0.82rem;
+}
+
+.control input[type="range"] {
+  width: 100%;
+  accent-color: var(--blue);
+}
+
+.control-checks {
+  gap: 0.3rem;
+}
+
+.check {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.82rem;
+}
+
+.check input {
+  accent-color: var(--blue);
+}
+
+.hint {
+  margin: 2rem 0 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
+.app-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 4rem;
+  font-size: 0.78rem;
+}
+
+.app-footer a {
+  color: inherit;
+  text-underline-offset: 0.3em;
+}
+
+@media (max-width: 760px) {
+  .title-row {
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primary-button:hover {
+    transform: none;
+  }
+}
