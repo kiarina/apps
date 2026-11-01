@@ -72,6 +72,7 @@
           <p class="placeholder-mark" aria-hidden="true">⤓</p>
           <p class="placeholder-title">スプライトシートをドロップ</p>
           <p class="placeholder-note">クリックでファイルを選択 / ⌘V で貼り付けも可</p>
+          <p class="placeholder-note">複数選ぶとレイヤーとして重なります</p>
           <button id="sample-button" class="sample-button" type="button">サンプルで試す</button>
         </div>
 
@@ -106,9 +107,17 @@
 
       <section class="controls" aria-label="設定">
         <div class="control-row">
-          <button id="open-button" class="primary-button" type="button">シートを開く</button>
+          <button id="open-button" class="primary-button" type="button">シートを追加</button>
           <button id="play-button" class="primary-button" type="button">停止</button>
-          <input id="file-input" type="file" accept="image/*" hidden>
+          <input id="file-input" type="file" accept="image/*" multiple hidden>
+        </div>
+
+        <div id="layer-panel" class="layers hidden">
+          <div class="layers-head">
+            <span class="control-label">レイヤー（上が手前）</span>
+            <button id="clear-layers" class="text-button" type="button">すべて消す</button>
+          </div>
+          <ol id="layer-list" class="layer-list"></ol>
         </div>
 
         <div class="control-grid">
@@ -172,12 +181,15 @@
           <li>スプライトシートの画像をドロップします（クリックで選択、⌘V で貼り付けもできます）。</li>
           <li>1 コマの大きさは自動で計算され、すぐに歩き始めます。右上の小窓で、小さく表示したときの見え方も同時に確かめられます。</li>
           <li>矢印ボタンやキーボードで向きを変え、速度・拡大・コマ順・背景を調整します。</li>
+          <li>パーツごとのシートを追加すると、レイヤーとして重なります。一覧で表示の切り替えや重なり順の変更ができます。</li>
         </ol>
 
         <h2>対応するスプライトシート</h2>
         <ul>
           <li>横 3 コマ × 縦 4 行の、1 キャラクター分のシート。画像の大きさは問いません（1 コマ = 幅 ÷ 3、高さ ÷ 4）。</li>
           <li>PNG など、ブラウザで開ける画像。透過もそのまま表示します。</li>
+          <li>体・髪・服などに分かれたシートは、レイヤーとして重ねられます。複数のファイルをまとめて入れると、名前順に奥から重なります。大きさが違うときは、一番大きいシートの 1 コマに合わせます。</li>
+          <li>同じ名前のファイルを入れ直すと、位置を保って差し替えます。描き直しの確認に便利です。</li>
           <li>行の並びは 4 通りから選べます。既定の「下 / 左 / 右 / 上」は、RPGツクール（MV・MZ・VX Ace）やウディタの 3 パターン 4 方向の歩行グラフィックと同じ並びです。</li>
         </ul>
 
@@ -185,6 +197,7 @@
         <ul>
           <li>上下左右の 4 方向の同時再生と、選んだ向きの大きな表示</li>
           <li>再生速度（1〜24 fps）と拡大率の調整</li>
+          <li>パーツのレイヤー重ね（表示の切り替え、重なり順の変更）</li>
           <li>コマ順の切り替え（往復・ループ・逆ループ）</li>
           <li>ドット絵の補間なし拡大、左右反転、1 コマの枠の表示</li>
           <li>画面内を歩かせての確認、チェッカー・明るい・暗い・マゼンタの背景</li>
@@ -199,7 +212,7 @@
           <dt>8 人分がまとまったシートは使えますか？</dt>
           <dd>シート全体を 3×4 に分割するので、1 人分（横 3 × 縦 4 コマ）に切り抜いてから読み込んでください。</dd>
           <dt>スマートフォンでも使えますか？</dt>
-          <dd>使えます。「シートを開く」から画像を選び、画面の矢印で向きを変えられます。</dd>
+          <dd>使えます。「シートを追加」から画像を選び、画面の矢印で向きを変えられます。</dd>
         </dl>
 
         <aside class="promo">

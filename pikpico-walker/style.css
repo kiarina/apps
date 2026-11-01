@@ -305,6 +305,96 @@ h1 {
   transform: translateY(-2px);
 }
 
+.layers {
+  margin-top: 1.5rem;
+}
+
+.layers.hidden {
+  display: none;
+}
+
+.layers-head {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.text-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-size: 0.74rem;
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+
+.layer-list {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  border: 1px solid var(--ink);
+  background: rgba(255, 255, 255, 0.55);
+  list-style: none;
+}
+
+.layer-item {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.35rem 0.6rem;
+}
+
+.layer-item + .layer-item {
+  border-top: 1px solid var(--line);
+}
+
+.layer-item input {
+  accent-color: var(--blue);
+}
+
+.layer-thumbnail {
+  flex: none;
+  width: 36px;
+  height: 48px;
+  background: var(--stage);
+  image-rendering: pixelated;
+}
+
+.layer-name {
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+  font-size: 0.82rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.layer-size {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.68rem;
+}
+
+.layer-button {
+  flex: none;
+  width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: inherit;
+  font-size: 0.7rem;
+}
+
+.layer-button:hover:not(:disabled) {
+  background: var(--acid);
+}
+
+.layer-button:disabled {
+  cursor: default;
+  opacity: 0.3;
+}
+
 .control-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -455,6 +545,10 @@ h1 {
   .promo {
     flex-direction: column;
     align-items: start;
+  }
+
+  .layer-size {
+    display: none;
   }
 }
 

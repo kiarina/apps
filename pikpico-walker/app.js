@@ -10,6 +10,12 @@ const TEXT = {
     pause: "停止",
     autoZoom: "自動",
     frame: "1コマ",
+    layerCount: (count) => `${count} レイヤー`,
+    pasted: (index) => `貼り付け ${index}`,
+    show: (name) => `${name} を表示`,
+    raise: (name) => `${name} を手前へ`,
+    lower: (name) => `${name} を奥へ`,
+    remove: (name) => `${name} を消す`,
     unreadable: (name) => `${name} を画像として読み込めませんでした`,
     notImage: (name) => `${name} は画像ではありません`,
   },
@@ -18,6 +24,12 @@ const TEXT = {
     pause: "Pause",
     autoZoom: "Auto",
     frame: "frame",
+    layerCount: (count) => `${count} layers`,
+    pasted: (index) => `Pasted ${index}`,
+    show: (name) => `Show ${name}`,
+    raise: (name) => `Move ${name} forward`,
+    lower: (name) => `Move ${name} back`,
+    remove: (name) => `Remove ${name}`,
     unreadable: (name) => `Could not read ${name} as an image`,
     notImage: (name) => `${name} is not an image`,
   },
@@ -61,6 +73,9 @@ const elements = {
   placeholder: document.querySelector("#placeholder"),
   sampleButton: document.querySelector("#sample-button"),
   sheetInfo: document.querySelector("#sheet-info"),
+  layerPanel: document.querySelector("#layer-panel"),
+  layerList: document.querySelector("#layer-list"),
+  clearLayers: document.querySelector("#clear-layers"),
   fileInput: document.querySelector("#file-input"),
   openButton: document.querySelector("#open-button"),
   playButton: document.querySelector("#play-button"),
@@ -88,7 +103,9 @@ const stripContexts = elements.stripCanvases.map((canvas) => ({
   direction: canvas.dataset.dir,
 }));
 
-let sheet = null;
+// 配列の先頭が一番奥のレイヤー
+let layers = [];
+let pasteCount = 0;
 let frameWidth = 0;
 let frameHeight = 0;
 let frameCache = new Map();
@@ -160,9 +177,9 @@ function paintBackground(context, width, height) {
   }
 }
 
-function cellRect(dir, column) {
-  const cellWidth = sheet.naturalWidth / COLS;
-  const cellHeight = sheet.naturalHeight / ROWS;
+function cellRect(image, dir, column) {
+  const cellWidth = image.naturalWidth / COLS;
+  const cellHeight = image.naturalHeight / ROWS;
   const row = rowForDirection(dir);
   const x = Math.round(column * cellWidth);
   const y = Math.round(row * cellHeight);
@@ -185,14 +202,20 @@ function frameCanvas(dir, column) {
     return cached;
   }
 
-  const rect = cellRect(dir, column);
+  const base = cellRect(largestLayer().image, dir, column);
   const canvas = document.createElement("canvas");
-  canvas.width = rect.width;
-  canvas.height = rect.height;
+  canvas.width = base.width;
+  canvas.height = base.height;
 
   const context = canvas.getContext("2d");
   context.imageSmoothingEnabled = false;
-  context.drawImage(sheet, rect.x, rect.y, rect.width, rect.height, 0, 0, rect.width, rect.height);
+
+  // 大きさの違うレイヤーは、一番大きいレイヤーの 1 コマに合わせて重ねる
+  layers.filter((layer) => layer.visible).forEach((layer) => {
+    const rect = cellRect(layer.image, dir, column);
+    context.drawImage(layer.image, rect.x, rect.y, rect.width, rect.height, 0, 0, base.width, base.height);
+  });
+
   frameCache.set(key, canvas);
   return canvas;
 }
@@ -238,7 +261,7 @@ function drawStage() {
   const { width, height } = resizeCanvas(elements.stage, stageContext);
   paintBackground(stageContext, width, height);
 
-  if (!sheet) {
+  if (layers.length === 0) {
     return;
   }
 
@@ -266,7 +289,7 @@ function drawStrip() {
     const { width, height } = resizeCanvas(canvas, context);
     context.clearRect(0, 0, width, height);
 
-    if (!sheet) {
+    if (layers.length === 0) {
       return;
     }
 
@@ -275,7 +298,7 @@ function drawStrip() {
 }
 
 function drawMini() {
-  if (!sheet) {
+  if (layers.length === 0) {
     return;
   }
 
@@ -323,62 +346,200 @@ function setPlaying(value) {
   elements.playButton.textContent = value ? TEXT.pause : TEXT.play;
 }
 
-function loadImage(source, label) {
-  const image = new Image();
+function largestLayer() {
+  return layers.reduce((largest, layer) =>
+    layer.image.naturalWidth * layer.image.naturalHeight >
+    largest.image.naturalWidth * largest.image.naturalHeight
+      ? layer
+      : largest,
+  );
+}
 
-  image.onload = () => {
-    sheet = image;
-    frameWidth = image.naturalWidth / COLS;
-    frameHeight = image.naturalHeight / ROWS;
+function showError(message) {
+  elements.sheetInfo.classList.add("error");
+  elements.sheetInfo.textContent = message;
+}
+
+function layerButton(label, ariaLabel, disabled, onClick) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "layer-button";
+  button.textContent = label;
+  button.disabled = disabled;
+  button.setAttribute("aria-label", ariaLabel);
+  button.addEventListener("click", onClick);
+  return button;
+}
+
+function moveLayer(index, offset) {
+  const [layer] = layers.splice(index, 1);
+  layers.splice(index + offset, 0, layer);
+  updateLayers();
+}
+
+function layerRow(layer, index) {
+  const row = document.createElement("li");
+  row.className = "layer-item";
+
+  const visible = document.createElement("input");
+  visible.type = "checkbox";
+  visible.checked = layer.visible;
+  visible.setAttribute("aria-label", TEXT.show(layer.name));
+  visible.addEventListener("change", () => {
+    layer.visible = visible.checked;
     frameCache = new Map();
+  });
+
+  const thumbnail = document.createElement("img");
+  thumbnail.className = "layer-thumbnail";
+  thumbnail.src = layer.image.src;
+  thumbnail.alt = "";
+
+  const name = document.createElement("span");
+  name.className = "layer-name";
+  name.textContent = layer.name;
+
+  const size = document.createElement("span");
+  size.className = "layer-size";
+  size.textContent = `${layer.image.naturalWidth}×${layer.image.naturalHeight}`;
+
+  row.append(
+    visible,
+    thumbnail,
+    name,
+    size,
+    layerButton("▲", TEXT.raise(layer.name), index === layers.length - 1, () => moveLayer(index, 1)),
+    layerButton("▼", TEXT.lower(layer.name), index === 0, () => moveLayer(index, -1)),
+    layerButton("×", TEXT.remove(layer.name), false, () => {
+      layers.splice(index, 1);
+      updateLayers();
+    }),
+  );
+  return row;
+}
+
+function updateLayers() {
+  const empty = layers.length === 0;
+
+  frameCache = new Map();
+  elements.placeholder.classList.toggle("hidden", !empty);
+  elements.mini.classList.toggle("hidden", empty);
+  elements.layerPanel.classList.toggle("hidden", empty);
+  elements.sheetInfo.classList.remove("error");
+  elements.sheetInfo.textContent = "";
+
+  // 一覧は手前のレイヤーを上に並べる
+  elements.layerList.replaceChildren(
+    ...layers.map((layer, index) => layerRow(layer, index)).reverse(),
+  );
+
+  if (empty) {
+    return;
+  }
+
+  const { image } = largestLayer();
+  const label = layers.length === 1 ? layers[0].name : TEXT.layerCount(layers.length);
+  frameWidth = image.naturalWidth / COLS;
+  frameHeight = image.naturalHeight / ROWS;
+  elements.sheetInfo.textContent =
+    `${label} · ${image.naturalWidth}×${image.naturalHeight} → ${TEXT.frame} ${formatSize(frameWidth)}×${formatSize(frameHeight)}`;
+}
+
+function readImage(source) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = source;
+  });
+}
+
+function readFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function addLayers(entries) {
+  const wasEmpty = layers.length === 0;
+  let failed = null;
+
+  for (const { source, name } of entries) {
+    try {
+      const image = await readImage(source);
+      const existing = layers.find((layer) => layer.name === name);
+
+      // 同じ名前のファイルは描き直した版として、位置を保って差し替える
+      if (existing) {
+        existing.image = image;
+      } else {
+        layers.push({ name, image, visible: true });
+      }
+    } catch {
+      failed = name;
+    }
+  }
+
+  updateLayers();
+
+  if (wasEmpty && layers.length > 0) {
     elements.pixelated.checked = Math.max(frameWidth, frameHeight) <= PIXEL_ART_LIMIT;
     position = { x: 0, y: 0 };
     elapsed = 0;
-    elements.placeholder.classList.add("hidden");
-    elements.mini.classList.remove("hidden");
-    elements.sheetInfo.classList.remove("error");
-    elements.sheetInfo.textContent =
-      `${label} · ${image.naturalWidth}×${image.naturalHeight} → ${TEXT.frame} ${formatSize(frameWidth)}×${formatSize(frameHeight)}`;
     setPlaying(true);
-  };
+  }
 
-  image.onerror = () => {
-    elements.sheetInfo.classList.add("error");
-    elements.sheetInfo.textContent = TEXT.unreadable(label);
-  };
-
-  image.src = source;
+  if (failed !== null) {
+    showError(TEXT.unreadable(failed));
+  }
 }
 
 function formatSize(value) {
   return Number.isInteger(value) ? String(value) : value.toFixed(2);
 }
 
-function handleFile(file) {
-  if (!file) {
-    return;
+async function handleFiles(files, pasted = false) {
+  const images = files
+    .filter((file) => file.type.startsWith("image/"))
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+  const rejected = files.find((file) => !file.type.startsWith("image/"));
+
+  if (images.length > 0) {
+    const entries = [];
+
+    for (const file of images) {
+      pasteCount += pasted ? 1 : 0;
+      entries.push({
+        source: await readFile(file),
+        name: pasted ? TEXT.pasted(pasteCount) : file.name,
+      });
+    }
+
+    await addLayers(entries);
   }
 
-  if (!file.type.startsWith("image/")) {
-    elements.sheetInfo.classList.add("error");
-    elements.sheetInfo.textContent = TEXT.notImage(file.name);
-    return;
+  if (rejected) {
+    showError(TEXT.notImage(rejected.name));
   }
-
-  const reader = new FileReader();
-  reader.onload = () => loadImage(reader.result, file.name);
-  reader.readAsDataURL(file);
 }
 
 elements.openButton.addEventListener("click", () => elements.fileInput.click());
 elements.placeholder.addEventListener("click", () => elements.fileInput.click());
 elements.sampleButton.addEventListener("click", (event) => {
   event.stopPropagation();
-  loadImage(SAMPLE_URL, "sample.png");
+  addLayers([{ source: SAMPLE_URL, name: "sample.png" }]);
 });
 elements.fileInput.addEventListener("change", (event) => {
-  handleFile(event.target.files[0]);
+  handleFiles(Array.from(event.target.files));
   event.target.value = "";
+});
+
+elements.clearLayers.addEventListener("click", () => {
+  layers = [];
+  updateLayers();
 });
 
 elements.playButton.addEventListener("click", () => setPlaying(!playing));
@@ -399,16 +560,16 @@ elements.playButton.addEventListener("click", () => setPlaying(!playing));
 elements.dropzone.addEventListener("drop", (event) => {
   event.preventDefault();
   elements.dropzone.classList.remove("dragover");
-  handleFile(event.dataTransfer.files[0]);
+  handleFiles(Array.from(event.dataTransfer.files));
 });
 
 window.addEventListener("paste", (event) => {
-  const item = Array.from(event.clipboardData?.items ?? []).find((entry) =>
-    entry.type.startsWith("image/"),
-  );
+  const files = Array.from(event.clipboardData?.items ?? [])
+    .filter((entry) => entry.type.startsWith("image/"))
+    .map((entry) => entry.getAsFile());
 
-  if (item) {
-    handleFile(item.getAsFile());
+  if (files.length > 0) {
+    handleFiles(files, true);
   }
 });
 
