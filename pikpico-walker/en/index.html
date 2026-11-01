@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PikpicoWalker - Free Sprite Sheet Walk Cycle Previewer</title>
+    <meta name="description" content="Drop a 3×4 sprite sheet and preview its up, down, left and right walk cycle animation right in your browser. Free, no sign-up, and your image never leaves your device. Great for RPG Maker style characters.">
+    <link rel="canonical" href="https://kiarina.github.io/apps/pikpico-walker/en/">
+    <link rel="alternate" hreflang="ja" href="https://kiarina.github.io/apps/pikpico-walker/">
+    <link rel="alternate" hreflang="en" href="https://kiarina.github.io/apps/pikpico-walker/en/">
+    <link rel="alternate" hreflang="x-default" href="https://kiarina.github.io/apps/pikpico-walker/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Kiarina Apps">
+    <meta property="og:title" content="PikpicoWalker — Sprite Sheet Walk Cycle Previewer">
+    <meta property="og:description" content="Drop a 3×4 sprite sheet and preview its up, down, left and right walk cycle animation right in your browser. Free, no sign-up, and your image never leaves your device. Great for RPG Maker style characters.">
+    <meta property="og:url" content="https://kiarina.github.io/apps/pikpico-walker/en/">
+    <meta property="og:image" content="https://kiarina.github.io/apps/pikpico-walker/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ja_JP">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/png" href="../favicon.png">
+    <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+    <link rel="stylesheet" href="../style.css">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "PikpicoWalker",
+        "url": "https://kiarina.github.io/apps/pikpico-walker/en/",
+        "description": "Drop a 3×4 sprite sheet and preview its up, down, left and right walk cycle animation right in your browser. Free, no sign-up, and your image never leaves your device. Great for RPG Maker style characters.",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript and HTML5 Canvas",
+        "inLanguage": "en",
+        "isAccessibleForFree": true,
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "image": "https://kiarina.github.io/apps/pikpico-walker/og.png",
+        "author": {
+          "@type": "Person",
+          "name": "Kiarina"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <nav class="top-links">
+          <a class="back-link" href="../../">← Apps</a>
+          <a class="back-link" href="../">日本語</a>
+        </nav>
+        <div class="title-row">
+          <div>
+            <p class="eyebrow">SPRITE SHEET PREVIEWER / 3 × 4</p>
+            <h1>Pikpico<br>Walker</h1>
+          </div>
+          <p class="description">Load a 3×4 sprite sheet and watch its walk cycle in all four directions.<br>Your image is processed in the browser and never uploaded.</p>
+        </div>
+      </header>
+
+      <section id="dropzone" class="stage-wrap" aria-label="Preview">
+        <canvas id="stage" class="stage"></canvas>
+        <canvas id="mini" class="mini hidden" aria-label="Preview at small size"></canvas>
+
+        <div id="placeholder" class="placeholder">
+          <p class="placeholder-mark" aria-hidden="true">⤓</p>
+          <p class="placeholder-title">Drop a sprite sheet</p>
+          <p class="placeholder-note">Click to choose a file / paste with ⌘V</p>
+          <button id="sample-button" class="sample-button" type="button">Try the sample</button>
+        </div>
+
+        <div class="dpad" role="group" aria-label="Direction">
+          <button type="button" class="dpad-btn up" data-dir="up" aria-label="Face up">▲</button>
+          <button type="button" class="dpad-btn left" data-dir="left" aria-label="Face left">◀</button>
+          <button type="button" class="dpad-btn right" data-dir="right" aria-label="Face right">▶</button>
+          <button type="button" class="dpad-btn down" data-dir="down" aria-label="Face down">▼</button>
+        </div>
+
+        <p id="sheet-info" class="sheet-info" aria-live="polite"></p>
+      </section>
+
+      <section class="strip" aria-label="All directions">
+        <figure class="strip-item">
+          <canvas class="strip-canvas" data-dir="down"></canvas>
+          <figcaption>DOWN</figcaption>
+        </figure>
+        <figure class="strip-item">
+          <canvas class="strip-canvas" data-dir="left"></canvas>
+          <figcaption>LEFT</figcaption>
+        </figure>
+        <figure class="strip-item">
+          <canvas class="strip-canvas" data-dir="right"></canvas>
+          <figcaption>RIGHT</figcaption>
+        </figure>
+        <figure class="strip-item">
+          <canvas class="strip-canvas" data-dir="up"></canvas>
+          <figcaption>UP</figcaption>
+        </figure>
+      </section>
+
+      <section class="controls" aria-label="Settings">
+        <div class="control-row">
+          <button id="open-button" class="primary-button" type="button">Open sheet</button>
+          <button id="play-button" class="primary-button" type="button">Pause</button>
+          <input id="file-input" type="file" accept="image/*" hidden>
+        </div>
+
+        <div class="control-grid">
+          <label class="control">
+            <span class="control-label">Speed <output id="fps-out">8</output> fps</span>
+            <input id="fps" type="range" min="1" max="24" step="1" value="8">
+          </label>
+
+          <label class="control">
+            <span class="control-label">Zoom <output id="zoom-out">Auto</output></span>
+            <input id="zoom" type="range" min="0" max="8" step="0.25" value="0">
+          </label>
+
+          <label class="control">
+            <span class="control-label">Frame order</span>
+            <select id="pattern">
+              <option value="pingpong">Left → Middle → Right → Middle (ping-pong)</option>
+              <option value="loop">Left → Middle → Right (loop)</option>
+              <option value="reverse">Right → Middle → Left (reverse loop)</option>
+            </select>
+          </label>
+
+          <label class="control">
+            <span class="control-label">Row order</span>
+            <select id="row-order">
+              <option value="down,left,right,up">Down / Left / Right / Up</option>
+              <option value="down,up,left,right">Down / Up / Left / Right</option>
+              <option value="down,right,left,up">Down / Right / Left / Up</option>
+              <option value="up,right,down,left">Up / Right / Down / Left</option>
+            </select>
+          </label>
+
+          <label class="control">
+            <span class="control-label">Background</span>
+            <select id="background">
+              <option value="checker">Checker</option>
+              <option value="paper">Light</option>
+              <option value="dark">Dark</option>
+              <option value="magenta">Magenta</option>
+            </select>
+          </label>
+
+          <div class="control control-checks">
+            <label class="check"><input id="walking" type="checkbox" checked> Walk animation (off shows the idle frame)</label>
+            <label class="check"><input id="moving" type="checkbox"> Move across the stage</label>
+            <label class="check"><input id="pixelated" type="checkbox"> Pixel art scaling (no smoothing)</label>
+            <label class="check"><input id="mirror" type="checkbox"> Flip horizontally</label>
+            <label class="check"><input id="grid" type="checkbox"> Show the frame outline</label>
+          </div>
+        </div>
+
+        <p class="hint">← ↑ → ↓ / W A S D to change direction · Space to play or pause</p>
+      </section>
+
+      <section class="guide" aria-label="How to use">
+        <h2>Check your walk cycle the moment you draw it</h2>
+        <p>PikpicoWalker is a browser tool that loads a character sprite sheet and plays its walk cycle animation. Spot uneven steps, jittery frames and direction mistakes without importing anything into your game. There is nothing to install and no account to create.</p>
+
+        <h2>How to use it</h2>
+        <ol>
+          <li>Drop your sprite sheet image onto the stage (or click to choose a file, or paste with ⌘V).</li>
+          <li>The frame size is worked out automatically and the character starts walking. The small window at the top right shows how it reads at a small size.</li>
+          <li>Change direction with the arrow buttons or keyboard, and adjust speed, zoom, frame order and background.</li>
+        </ol>
+
+        <h2>Supported sprite sheets</h2>
+        <ul>
+          <li>Single-character sheets with 3 columns and 4 rows, at any image size (one frame is width ÷ 3 by height ÷ 4).</li>
+          <li>PNG and any other image your browser can open. Transparency is preserved.</li>
+          <li>Four row orders are available. The default, Down / Left / Right / Up, matches the 3-frame, 4-direction walk graphics used by RPG Maker MV, MZ and VX Ace.</li>
+        </ul>
+
+        <h2>What you can check</h2>
+        <ul>
+          <li>All four directions playing together, plus a large view of the selected direction</li>
+          <li>Playback speed (1–24 fps) and zoom</li>
+          <li>Frame order: ping-pong, loop or reverse loop</li>
+          <li>Pixel art scaling without smoothing, horizontal flip and frame outlines</li>
+          <li>Walking across the stage, on checker, light, dark or magenta backgrounds</li>
+        </ul>
+
+        <h2>FAQ</h2>
+        <dl>
+          <dt>Is my image uploaded to a server?</dt>
+          <dd>No. Loading and playback all happen inside your browser.</dd>
+          <dt>Is it free?</dt>
+          <dd>Yes, and no sign-up is needed.</dd>
+          <dt>Can I use a sheet with eight characters?</dt>
+          <dd>The whole image is divided into 3×4, so crop it to one character (3 columns by 4 rows) first.</dd>
+          <dt>Does it work on a phone?</dt>
+          <dd>Yes. Choose an image with “Open sheet” and use the on-screen arrows to change direction.</dd>
+        </dl>
+
+        <aside class="promo">
+          <img src="../pikpico-logo.png" alt="Pikpico" width="202" height="66">
+          <p>Want to turn pixel art characters into short movies with dialogue? Try <a href="https://pikpico.blazeworks.jp/">Pikpico</a>, the mobile app.</p>
+        </aside>
+      </section>
+
+      <footer class="app-footer">
+        <span>© Kiarina</span>
+        <a href="https://github.com/kiarina/apps">GitHub ↗</a>
+      </footer>
+    </main>
+
+    <script type="module" src="../app.js"></script>
+  </body>
+</html>

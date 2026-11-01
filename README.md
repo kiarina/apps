@@ -6,7 +6,7 @@ Static web apps published directly from the repository root with GitHub Pages.
 
 - `/` — app index
 - `/python-console/` — WebAssembly-powered interactive Python console
-- `/sprite-walker/` — 3x4 character sprite sheet walk-cycle previewer
+- `/pikpico-walker/` — PikpicoWalker, a 3x4 sprite sheet walk-cycle previewer (`/pikpico-walker/en/` for English; `/sprite-walker/` redirects here)
 - `/<app-name>/` — each static app
 
 The production URL is:

@@ -2,6 +2,26 @@ const COLS = 3;
 const ROWS = 4;
 const IDLE_COLUMN = 1;
 const PIXEL_ART_LIMIT = 96;
+const SAMPLE_URL = new URL("./sample.png", import.meta.url).href;
+
+const TEXT = {
+  ja: {
+    play: "再生",
+    pause: "停止",
+    autoZoom: "自動",
+    frame: "1コマ",
+    unreadable: (name) => `${name} を画像として読み込めませんでした`,
+    notImage: (name) => `${name} は画像ではありません`,
+  },
+  en: {
+    play: "Play",
+    pause: "Pause",
+    autoZoom: "Auto",
+    frame: "frame",
+    unreadable: (name) => `Could not read ${name} as an image`,
+    notImage: (name) => `${name} is not an image`,
+  },
+}[document.documentElement.lang === "en" ? "en" : "ja"];
 
 const SEQUENCES = {
   pingpong: [0, 1, 2, 1],
@@ -37,7 +57,9 @@ const BACKGROUNDS = {
 const elements = {
   dropzone: document.querySelector("#dropzone"),
   stage: document.querySelector("#stage"),
+  mini: document.querySelector("#mini"),
   placeholder: document.querySelector("#placeholder"),
+  sampleButton: document.querySelector("#sample-button"),
   sheetInfo: document.querySelector("#sheet-info"),
   fileInput: document.querySelector("#file-input"),
   openButton: document.querySelector("#open-button"),
@@ -59,6 +81,7 @@ const elements = {
 };
 
 const stageContext = elements.stage.getContext("2d");
+const miniContext = elements.mini.getContext("2d");
 const stripContexts = elements.stripCanvases.map((canvas) => ({
   canvas,
   context: canvas.getContext("2d"),
@@ -203,11 +226,12 @@ function drawSprite(context, dir, column, centerX, centerY, scale) {
   }
 }
 
-function fitScale(width, height, margin) {
+function fitScale(width, height, margin, snap = Math.floor) {
   const scale = Math.min((width - margin) / frameWidth, (height - margin) / frameHeight);
+  const ratio = window.devicePixelRatio || 1;
 
-  // ドット絵は整数倍でないとピクセルの大きさが揃わない
-  return elements.pixelated.checked && scale > 1 ? Math.floor(scale) : scale;
+  // ドット絵は物理ピクセルの整数倍でないとピクセルの大きさが揃わない
+  return elements.pixelated.checked && scale * ratio > 1 ? snap(scale * ratio) / ratio : scale;
 }
 
 function drawStage() {
@@ -250,6 +274,16 @@ function drawStrip() {
   });
 }
 
+function drawMini() {
+  if (!sheet) {
+    return;
+  }
+
+  const { width, height } = resizeCanvas(elements.mini, miniContext);
+  paintBackground(miniContext, width, height);
+  drawSprite(miniContext, direction, currentColumn(), width / 2, height / 2, fitScale(width, height, 0, Math.round));
+}
+
 function render(timestamp) {
   if (lastTimestamp === null) {
     lastTimestamp = timestamp;
@@ -270,6 +304,7 @@ function render(timestamp) {
   }
 
   drawStage();
+  drawMini();
   drawStrip();
   requestAnimationFrame(render);
 }
@@ -283,7 +318,7 @@ function setDirection(value) {
 
 function setPlaying(value) {
   playing = value;
-  elements.playButton.textContent = value ? "停止" : "再生";
+  elements.playButton.textContent = value ? TEXT.pause : TEXT.play;
 }
 
 function loadImage(source, label) {
@@ -298,15 +333,16 @@ function loadImage(source, label) {
     position = { x: 0, y: 0 };
     elapsed = 0;
     elements.placeholder.classList.add("hidden");
+    elements.mini.classList.remove("hidden");
     elements.sheetInfo.classList.remove("error");
     elements.sheetInfo.textContent =
-      `${label} · ${image.naturalWidth}×${image.naturalHeight} → 1コマ ${formatSize(frameWidth)}×${formatSize(frameHeight)}`;
+      `${label} · ${image.naturalWidth}×${image.naturalHeight} → ${TEXT.frame} ${formatSize(frameWidth)}×${formatSize(frameHeight)}`;
     setPlaying(true);
   };
 
   image.onerror = () => {
     elements.sheetInfo.classList.add("error");
-    elements.sheetInfo.textContent = `${label} を画像として読み込めませんでした`;
+    elements.sheetInfo.textContent = TEXT.unreadable(label);
   };
 
   image.src = source;
@@ -323,7 +359,7 @@ function handleFile(file) {
 
   if (!file.type.startsWith("image/")) {
     elements.sheetInfo.classList.add("error");
-    elements.sheetInfo.textContent = `${file.name} は画像ではありません`;
+    elements.sheetInfo.textContent = TEXT.notImage(file.name);
     return;
   }
 
@@ -334,6 +370,10 @@ function handleFile(file) {
 
 elements.openButton.addEventListener("click", () => elements.fileInput.click());
 elements.placeholder.addEventListener("click", () => elements.fileInput.click());
+elements.sampleButton.addEventListener("click", (event) => {
+  event.stopPropagation();
+  loadImage(SAMPLE_URL, "sample.png");
+});
 elements.fileInput.addEventListener("change", (event) => {
   handleFile(event.target.files[0]);
   event.target.value = "";
@@ -380,7 +420,7 @@ elements.fps.addEventListener("input", () => {
 
 elements.zoom.addEventListener("input", () => {
   const value = Number(elements.zoom.value);
-  elements.zoomOut.textContent = value > 0 ? `×${value}` : "自動";
+  elements.zoomOut.textContent = value > 0 ? `×${value}` : TEXT.autoZoom;
 });
 
 window.addEventListener("keydown", (event) => {

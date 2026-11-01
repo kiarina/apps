@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://kiarina.github.io/apps/</loc>
+  </url>
+  <url>
+    <loc>https://kiarina.github.io/apps/python-console/</loc>
+  </url>
+  <url>
+    <loc>https://kiarina.github.io/apps/pikpico-walker/</loc>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://kiarina.github.io/apps/pikpico-walker/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kiarina.github.io/apps/pikpico-walker/en/"/>
+  </url>
+  <url>
+    <loc>https://kiarina.github.io/apps/pikpico-walker/en/</loc>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://kiarina.github.io/apps/pikpico-walker/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kiarina.github.io/apps/pikpico-walker/en/"/>
+  </url>
+</urlset>
