@@ -107,7 +107,8 @@
 
       <section class="controls" aria-label="Settings">
         <div class="control-row">
-          <button id="open-button" class="primary-button" type="button">Add sheet</button>
+          <button id="open-button" class="primary-button" type="button">Open sheet</button>
+          <button id="add-button" class="primary-button" type="button">Add layer</button>
           <button id="play-button" class="primary-button" type="button">Pause</button>
           <input id="file-input" type="file" accept="image/*" multiple hidden>
         </div>
@@ -117,6 +118,7 @@
             <span class="control-label">Layers (top is in front)</span>
             <button id="clear-layers" class="text-button" type="button">Clear all</button>
           </div>
+          <p class="layers-note">Adding one sheet replaces the selected layer. Click a layer to select it.</p>
           <ol id="layer-list" class="layer-list"></ol>
         </div>
 
@@ -181,7 +183,7 @@
           <li>Drop your sprite sheet image onto the stage (or click to choose a file, or paste with ⌘V).</li>
           <li>The frame size is worked out automatically and the character starts walking. The small window at the top right shows how it reads at a small size.</li>
           <li>Change direction with the arrow buttons or keyboard, and adjust speed, zoom, frame order and background.</li>
-          <li>Add a sheet for each part and they stack as layers. Use the list to toggle them or change their order.</li>
+          <li>Stack a sheet for each part with “Add layer”. Use the list to toggle them or change their order.</li>
         </ol>
 
         <h2>Supported sprite sheets</h2>
@@ -189,7 +191,7 @@
           <li>Single-character sheets with 3 columns and 4 rows, at any image size (one frame is width ÷ 3 by height ÷ 4).</li>
           <li>PNG and any other image your browser can open. Transparency is preserved.</li>
           <li>Sheets split into parts such as body, hair and clothes can be stacked as layers. Files added together stack from back to front in name order. If sizes differ, each layer is fitted to the frame of the largest sheet.</li>
-          <li>Adding a file with the same name replaces that layer in place, which is handy when you are redrawing a part.</li>
+          <li>Dropping a single sheet replaces the selected layer, which is handy when you are redrawing a part.</li>
           <li>Four row orders are available. The default, Down / Left / Right / Up, matches the 3-frame, 4-direction walk graphics used by RPG Maker MV, MZ and VX Ace.</li>
         </ul>
 
@@ -212,7 +214,7 @@
           <dt>Can I use a sheet with eight characters?</dt>
           <dd>The whole image is divided into 3×4, so crop it to one character (3 columns by 4 rows) first.</dd>
           <dt>Does it work on a phone?</dt>
-          <dd>Yes. Choose an image with “Add sheet” and use the on-screen arrows to change direction.</dd>
+          <dd>Yes. Choose an image with “Open sheet” and use the on-screen arrows to change direction.</dd>
         </dl>
 
         <aside class="promo">

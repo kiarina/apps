@@ -78,6 +78,7 @@ const elements = {
   clearLayers: document.querySelector("#clear-layers"),
   fileInput: document.querySelector("#file-input"),
   openButton: document.querySelector("#open-button"),
+  addButton: document.querySelector("#add-button"),
   playButton: document.querySelector("#play-button"),
   fps: document.querySelector("#fps"),
   fpsOut: document.querySelector("#fps-out"),
@@ -105,6 +106,8 @@ const stripContexts = elements.stripCanvases.map((canvas) => ({
 
 // 配列の先頭が一番奥のレイヤー
 let layers = [];
+let selectedLayer = null;
+let addOnOpen = false;
 let pasteCount = 0;
 let frameWidth = 0;
 let frameHeight = 0;
@@ -380,6 +383,13 @@ function moveLayer(index, offset) {
 function layerRow(layer, index) {
   const row = document.createElement("li");
   row.className = "layer-item";
+  row.classList.toggle("selected", layer === selectedLayer);
+  row.addEventListener("click", (event) => {
+    if (!event.target.closest("input, .layer-button")) {
+      selectedLayer = layer;
+      updateLayers();
+    }
+  });
 
   const visible = document.createElement("input");
   visible.type = "checkbox";
@@ -395,9 +405,11 @@ function layerRow(layer, index) {
   thumbnail.src = layer.image.src;
   thumbnail.alt = "";
 
-  const name = document.createElement("span");
+  const name = document.createElement("button");
+  name.type = "button";
   name.className = "layer-name";
   name.textContent = layer.name;
+  name.setAttribute("aria-pressed", String(layer === selectedLayer));
 
   const size = document.createElement("span");
   size.className = "layer-size";
@@ -412,6 +424,11 @@ function layerRow(layer, index) {
     layerButton("▼", TEXT.lower(layer.name), index === 0, () => moveLayer(index, -1)),
     layerButton("×", TEXT.remove(layer.name), false, () => {
       layers.splice(index, 1);
+
+      if (layer === selectedLayer) {
+        selectedLayer = layers[Math.min(index, layers.length - 1)] ?? null;
+      }
+
       updateLayers();
     }),
   );
@@ -472,11 +489,13 @@ async function addLayers(entries) {
       const image = await readImage(source);
       const existing = layers.find((layer) => layer.name === name);
 
-      // 同じ名前のファイルは描き直した版として、位置を保って差し替える
+      // まとめて入れた中の同じ名前のファイルは、描き直した版として位置を保って差し替える
       if (existing) {
         existing.image = image;
+        selectedLayer = existing;
       } else {
-        layers.push({ name, image, visible: true });
+        selectedLayer = { name, image, visible: true };
+        layers.push(selectedLayer);
       }
     } catch {
       failed = name;
@@ -501,7 +520,18 @@ function formatSize(value) {
   return Number.isInteger(value) ? String(value) : value.toFixed(2);
 }
 
-async function handleFiles(files, pasted = false) {
+async function replaceSelectedLayer({ source, name }) {
+  try {
+    selectedLayer.image = await readImage(source);
+    selectedLayer.name = name;
+    selectedLayer.visible = true;
+    updateLayers();
+  } catch {
+    showError(TEXT.unreadable(name));
+  }
+}
+
+async function handleFiles(files, { pasted = false, add = false } = {}) {
   const images = files
     .filter((file) => file.type.startsWith("image/"))
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
@@ -518,7 +548,11 @@ async function handleFiles(files, pasted = false) {
       });
     }
 
-    await addLayers(entries);
+    if (!add && entries.length === 1 && selectedLayer) {
+      await replaceSelectedLayer(entries[0]);
+    } else {
+      await addLayers(entries);
+    }
   }
 
   if (rejected) {
@@ -526,19 +560,26 @@ async function handleFiles(files, pasted = false) {
   }
 }
 
-elements.openButton.addEventListener("click", () => elements.fileInput.click());
-elements.placeholder.addEventListener("click", () => elements.fileInput.click());
+function openFilePicker(add) {
+  addOnOpen = add;
+  elements.fileInput.click();
+}
+
+elements.openButton.addEventListener("click", () => openFilePicker(false));
+elements.addButton.addEventListener("click", () => openFilePicker(true));
+elements.placeholder.addEventListener("click", () => openFilePicker(false));
 elements.sampleButton.addEventListener("click", (event) => {
   event.stopPropagation();
   addLayers([{ source: SAMPLE_URL, name: "sample.png" }]);
 });
 elements.fileInput.addEventListener("change", (event) => {
-  handleFiles(Array.from(event.target.files));
+  handleFiles(Array.from(event.target.files), { add: addOnOpen });
   event.target.value = "";
 });
 
 elements.clearLayers.addEventListener("click", () => {
   layers = [];
+  selectedLayer = null;
   updateLayers();
 });
 
@@ -569,7 +610,7 @@ window.addEventListener("paste", (event) => {
     .map((entry) => entry.getAsFile());
 
   if (files.length > 0) {
-    handleFiles(files, true);
+    handleFiles(files, { pasted: true });
   }
 });
 

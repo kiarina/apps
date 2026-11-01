@@ -107,7 +107,8 @@
 
       <section class="controls" aria-label="設定">
         <div class="control-row">
-          <button id="open-button" class="primary-button" type="button">シートを追加</button>
+          <button id="open-button" class="primary-button" type="button">シートを開く</button>
+          <button id="add-button" class="primary-button" type="button">レイヤーを追加</button>
           <button id="play-button" class="primary-button" type="button">停止</button>
           <input id="file-input" type="file" accept="image/*" multiple hidden>
         </div>
@@ -117,6 +118,7 @@
             <span class="control-label">レイヤー（上が手前）</span>
             <button id="clear-layers" class="text-button" type="button">すべて消す</button>
           </div>
+          <p class="layers-note">シートを 1 枚入れると、選択中のレイヤーを置き換えます。クリックで選択を切り替えられます。</p>
           <ol id="layer-list" class="layer-list"></ol>
         </div>
 
@@ -181,7 +183,7 @@
           <li>スプライトシートの画像をドロップします（クリックで選択、⌘V で貼り付けもできます）。</li>
           <li>1 コマの大きさは自動で計算され、すぐに歩き始めます。右上の小窓で、小さく表示したときの見え方も同時に確かめられます。</li>
           <li>矢印ボタンやキーボードで向きを変え、速度・拡大・コマ順・背景を調整します。</li>
-          <li>パーツごとのシートを追加すると、レイヤーとして重なります。一覧で表示の切り替えや重なり順の変更ができます。</li>
+          <li>パーツごとのシートは「レイヤーを追加」で重ねられます。一覧で表示の切り替えや重なり順の変更ができます。</li>
         </ol>
 
         <h2>対応するスプライトシート</h2>
@@ -189,7 +191,7 @@
           <li>横 3 コマ × 縦 4 行の、1 キャラクター分のシート。画像の大きさは問いません（1 コマ = 幅 ÷ 3、高さ ÷ 4）。</li>
           <li>PNG など、ブラウザで開ける画像。透過もそのまま表示します。</li>
           <li>体・髪・服などに分かれたシートは、レイヤーとして重ねられます。複数のファイルをまとめて入れると、名前順に奥から重なります。大きさが違うときは、一番大きいシートの 1 コマに合わせます。</li>
-          <li>同じ名前のファイルを入れ直すと、位置を保って差し替えます。描き直しの確認に便利です。</li>
+          <li>シートを 1 枚ドロップすると、選択中のレイヤーを置き換えます。描き直したパーツの確認に便利です。</li>
           <li>行の並びは 4 通りから選べます。既定の「下 / 左 / 右 / 上」は、RPGツクール（MV・MZ・VX Ace）やウディタの 3 パターン 4 方向の歩行グラフィックと同じ並びです。</li>
         </ul>
 
@@ -212,7 +214,7 @@
           <dt>8 人分がまとまったシートは使えますか？</dt>
           <dd>シート全体を 3×4 に分割するので、1 人分（横 3 × 縦 4 コマ）に切り抜いてから読み込んでください。</dd>
           <dt>スマートフォンでも使えますか？</dt>
-          <dd>使えます。「シートを追加」から画像を選び、画面の矢印で向きを変えられます。</dd>
+          <dd>使えます。「シートを開く」から画像を選び、画面の矢印で向きを変えられます。</dd>
         </dl>
 
         <aside class="promo">
