@@ -226,12 +226,12 @@ function drawSprite(context, dir, column, centerX, centerY, scale) {
   }
 }
 
-function fitScale(width, height, margin, snap = Math.floor) {
+function fitScale(width, height, margin) {
   const scale = Math.min((width - margin) / frameWidth, (height - margin) / frameHeight);
   const ratio = window.devicePixelRatio || 1;
 
   // ドット絵は物理ピクセルの整数倍でないとピクセルの大きさが揃わない
-  return elements.pixelated.checked && scale * ratio > 1 ? snap(scale * ratio) / ratio : scale;
+  return elements.pixelated.checked && scale * ratio > 1 ? Math.floor(scale * ratio) / ratio : scale;
 }
 
 function drawStage() {
@@ -281,7 +281,9 @@ function drawMini() {
 
   const { width, height } = resizeCanvas(elements.mini, miniContext);
   paintBackground(miniContext, width, height);
-  drawSprite(miniContext, direction, currentColumn(), width / 2, height / 2, fitScale(width, height, 0, Math.round));
+  // 小窓は枠いっぱいに見せたいので、ドット絵でも整数倍に丸めない
+  const scale = Math.min(width / frameWidth, height / frameHeight);
+  drawSprite(miniContext, direction, currentColumn(), width / 2, height / 2, scale);
 }
 
 function render(timestamp) {
