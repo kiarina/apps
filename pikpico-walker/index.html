@@ -22,7 +22,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" type="image/png" href="./favicon.png">
     <link rel="apple-touch-icon" href="./apple-touch-icon.png">
-    <link rel="stylesheet" href="./style.css?v=6">
+    <link rel="stylesheet" href="./style.css?v=7">
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -110,6 +110,7 @@
           <button id="open-button" class="primary-button" type="button">シートを開く</button>
           <button id="add-button" class="primary-button" type="button">レイヤーを追加</button>
           <button id="play-button" class="primary-button" type="button">停止</button>
+          <button id="step-button" class="primary-button" type="button">1コマ送り</button>
           <input id="file-input" type="file" accept="image/*" multiple hidden>
         </div>
 
@@ -201,6 +202,7 @@
           <li>再生速度（1〜24 fps）と拡大率の調整</li>
           <li>パーツのレイヤー重ね（表示の切り替え、重なり順の変更）</li>
           <li>コマ順の切り替え（往復・ループ・逆ループ）</li>
+          <li>1 コマずつの送り</li>
           <li>ドット絵の補間なし拡大、左右反転、1 コマの枠の表示</li>
           <li>画面内を歩かせての確認、チェッカー・明るい・暗い・マゼンタの背景</li>
         </ul>
@@ -229,6 +231,6 @@
       </footer>
     </main>
 
-    <script type="module" src="./app.js?v=6"></script>
+    <script type="module" src="./app.js?v=7"></script>
   </body>
 </html>

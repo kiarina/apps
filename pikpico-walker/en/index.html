@@ -22,7 +22,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" type="image/png" href="../favicon.png">
     <link rel="apple-touch-icon" href="../apple-touch-icon.png">
-    <link rel="stylesheet" href="../style.css?v=6">
+    <link rel="stylesheet" href="../style.css?v=7">
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -110,6 +110,7 @@
           <button id="open-button" class="primary-button" type="button">Open sheet</button>
           <button id="add-button" class="primary-button" type="button">Add layer</button>
           <button id="play-button" class="primary-button" type="button">Pause</button>
+          <button id="step-button" class="primary-button" type="button">Next frame</button>
           <input id="file-input" type="file" accept="image/*" multiple hidden>
         </div>
 
@@ -201,6 +202,7 @@
           <li>Playback speed (1–24 fps) and zoom</li>
           <li>Layered parts, with visibility toggles and reordering</li>
           <li>Frame order: ping-pong, loop or reverse loop</li>
+          <li>Stepping through one frame at a time</li>
           <li>Pixel art scaling without smoothing, horizontal flip and frame outlines</li>
           <li>Walking across the stage, on checker, light, dark or magenta backgrounds</li>
         </ul>
@@ -229,6 +231,6 @@
       </footer>
     </main>
 
-    <script type="module" src="../app.js?v=6"></script>
+    <script type="module" src="../app.js?v=7"></script>
   </body>
 </html>

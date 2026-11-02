@@ -80,6 +80,7 @@ const elements = {
   openButton: document.querySelector("#open-button"),
   addButton: document.querySelector("#add-button"),
   playButton: document.querySelector("#play-button"),
+  stepButton: document.querySelector("#step-button"),
   fps: document.querySelector("#fps"),
   fpsOut: document.querySelector("#fps-out"),
   zoom: document.querySelector("#zoom"),
@@ -312,6 +313,25 @@ function drawMini() {
   drawSprite(miniContext, direction, currentColumn(), width / 2, height / 2, scale);
 }
 
+function advance(delta) {
+  elapsed += delta;
+
+  if (elements.moving.checked && elements.walking.checked) {
+    const [dx, dy] = MOVE_VECTORS[direction];
+    const speed = Number(elements.fps.value) * 6;
+    position.x += (dx * speed * delta) / 1000;
+    position.y += (dy * speed * delta) / 1000;
+  }
+}
+
+function stepFrame() {
+  const duration = frameDuration();
+
+  setPlaying(false);
+  // コマの真ん中へ進める。境目だと小数の誤差で前のコマに戻ることがある
+  advance((Math.floor(elapsed / duration) + 1.5) * duration - elapsed);
+}
+
 function render(timestamp) {
   if (lastTimestamp === null) {
     lastTimestamp = timestamp;
@@ -321,14 +341,7 @@ function render(timestamp) {
   lastTimestamp = timestamp;
 
   if (playing) {
-    elapsed += delta;
-
-    if (elements.moving.checked && elements.walking.checked) {
-      const [dx, dy] = MOVE_VECTORS[direction];
-      const speed = Number(elements.fps.value) * 6;
-      position.x += (dx * speed * delta) / 1000;
-      position.y += (dy * speed * delta) / 1000;
-    }
+    advance(delta);
   }
 
   drawStage();
@@ -584,6 +597,7 @@ elements.clearLayers.addEventListener("click", () => {
 });
 
 elements.playButton.addEventListener("click", () => setPlaying(!playing));
+elements.stepButton.addEventListener("click", stepFrame);
 
 ["dragenter", "dragover"].forEach((type) => {
   elements.dropzone.addEventListener(type, (event) => {
