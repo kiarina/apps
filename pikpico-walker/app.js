@@ -605,12 +605,13 @@ elements.dropzone.addEventListener("drop", (event) => {
 });
 
 window.addEventListener("paste", (event) => {
-  const files = Array.from(event.clipboardData?.items ?? [])
-    .filter((entry) => entry.type.startsWith("image/"))
-    .map((entry) => entry.getAsFile());
+  // 1 枚の画像が PNG と TIFF のように複数の形で入っていることがあるので、最初の 1 つだけ読む
+  const item = Array.from(event.clipboardData?.items ?? []).find((entry) =>
+    entry.type.startsWith("image/"),
+  );
 
-  if (files.length > 0) {
-    handleFiles(files, { pasted: true });
+  if (item) {
+    handleFiles([item.getAsFile()], { pasted: true });
   }
 });
 

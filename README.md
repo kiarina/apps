@@ -18,6 +18,9 @@ https://kiarina.github.io/apps/
 Each app lives in its own directory and must work under the `/apps/<app-name>/`
 base path. Prefer relative URLs for assets and navigation.
 
+GitHub Pages caches files for 10 minutes. PikpicoWalker loads `app.js` and
+`style.css` with a `?v=` query, so bump it in both HTML pages when either changes.
+
 ## Development
 
 ```bash
