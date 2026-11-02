@@ -104,7 +104,7 @@ h1 {
 .logo img {
   display: block;
   width: 404px;
-  height: 200px;
+  height: 176px;
   image-rendering: pixelated;
 }
 
@@ -565,7 +565,7 @@ h1 {
 
   .logo img {
     width: 303px;
-    height: 150px;
+    height: 132px;
   }
 
   .placeholder {
@@ -589,7 +589,7 @@ h1 {
 @media (max-width: 360px) {
   .logo img {
     width: 202px;
-    height: 100px;
+    height: 88px;
   }
 }
 
