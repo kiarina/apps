@@ -101,6 +101,13 @@ h1 {
   line-height: 0.78;
 }
 
+.logo img {
+  display: block;
+  width: 404px;
+  height: 200px;
+  image-rendering: pixelated;
+}
+
 .description {
   max-width: 380px;
   margin: 0;
@@ -556,6 +563,15 @@ h1 {
     align-items: start;
   }
 
+  .logo img {
+    width: 303px;
+    height: 150px;
+  }
+
+  .placeholder {
+    padding-bottom: 8rem;
+  }
+
   .strip {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -567,6 +583,13 @@ h1 {
 
   .layer-size {
     display: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .logo img {
+    width: 202px;
+    height: 100px;
   }
 }
 
