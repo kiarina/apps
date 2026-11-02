@@ -524,7 +524,7 @@ h1 {
   display: flex;
   gap: 1.25rem;
   align-items: center;
-  margin-top: 2.5rem;
+  margin-top: clamp(2rem, 5vw, 3rem);
   padding: 1rem 1.25rem;
   border: 1px solid var(--ink);
   background: rgba(255, 255, 255, 0.55);
@@ -538,7 +538,14 @@ h1 {
 }
 
 .promo p {
+  flex: 1;
   margin: 0;
+  font-size: 0.88rem;
+}
+
+.promo .primary-button {
+  flex: none;
+  text-decoration: none;
 }
 
 .app-footer {
@@ -554,6 +561,10 @@ h1 {
 .app-footer a {
   color: inherit;
   text-underline-offset: 0.3em;
+}
+
+.app-footer span {
+  margin-right: auto;
 }
 
 @media (max-width: 760px) {
