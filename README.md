@@ -6,7 +6,7 @@ Static web apps published directly from the repository root with GitHub Pages.
 
 - `/` — app index
 - `/python-console/` — WebAssembly-powered interactive Python console
-- `/pikpico-walker/` — PikpicoWalker, a 3x4 sprite sheet walk-cycle previewer (`/pikpico-walker/en/` for English; `/sprite-walker/` redirects here)
+- `/pikpico-walker/`, `/sprite-walker/` — redirect to PikpicoWalker, which now lives at https://pikpico.blazeworks.jp/walker
 - `/<app-name>/` — each static app
 
 The production URL is:
@@ -17,9 +17,6 @@ https://kiarina.github.io/apps/
 
 Each app lives in its own directory and must work under the `/apps/<app-name>/`
 base path. Prefer relative URLs for assets and navigation.
-
-GitHub Pages caches files for 10 minutes. PikpicoWalker loads `app.js` and
-`style.css` with a `?v=` query, so bump it in both HTML pages when either changes.
 
 ## Development
 
