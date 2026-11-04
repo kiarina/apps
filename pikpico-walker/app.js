@@ -1,6 +1,3 @@
-const COLS = 3;
-const ROWS = 4;
-const IDLE_COLUMN = 1;
 const PIXEL_ART_LIMIT = 96;
 const SAMPLE_URL = new URL("./sample.png", import.meta.url).href;
 
@@ -35,11 +32,19 @@ const TEXT = {
   },
 }[document.documentElement.lang === "en" ? "en" : "ja"];
 
-const SEQUENCES = {
-  pingpong: [0, 1, 2, 1],
-  loop: [0, 1, 2],
-  reverse: [2, 1, 0],
-};
+function sequenceFor(pattern, count) {
+  const forward = [...Array(count).keys()];
+
+  if (pattern === "loop") {
+    return forward;
+  }
+
+  if (pattern === "reverse") {
+    return forward.reverse();
+  }
+
+  return [...forward, ...forward.slice(1, -1).reverse()];
+}
 
 const KEY_DIRECTIONS = {
   ArrowUp: "up",
@@ -87,6 +92,7 @@ const elements = {
   zoomOut: document.querySelector("#zoom-out"),
   pattern: document.querySelector("#pattern"),
   rowOrder: document.querySelector("#row-order"),
+  frames: document.querySelector("#frames"),
   background: document.querySelector("#background"),
   walking: document.querySelector("#walking"),
   moving: document.querySelector("#moving"),
@@ -123,13 +129,26 @@ function frameDuration() {
   return 1000 / Number(elements.fps.value);
 }
 
+function columnCount() {
+  return Number(elements.frames.value);
+}
+
+function directionOrder() {
+  return elements.rowOrder.value.split(",");
+}
+
+// 3 コマは真ん中が待機コマ。ほかのコマ数は先頭のコマ
+function idleColumn() {
+  return columnCount() === 3 ? 1 : 0;
+}
+
 function currentSequence() {
-  return SEQUENCES[elements.pattern.value] ?? SEQUENCES.pingpong;
+  return sequenceFor(elements.pattern.value, columnCount());
 }
 
 function currentColumn() {
   if (!elements.walking.checked) {
-    return IDLE_COLUMN;
+    return idleColumn();
   }
 
   const sequence = currentSequence();
@@ -138,8 +157,7 @@ function currentColumn() {
 }
 
 function rowForDirection(value) {
-  const order = elements.rowOrder.value.split(",");
-  const index = order.indexOf(value);
+  const index = directionOrder().indexOf(value);
   return index === -1 ? 0 : index;
 }
 
@@ -182,8 +200,8 @@ function paintBackground(context, width, height) {
 }
 
 function cellRect(image, dir, column) {
-  const cellWidth = image.naturalWidth / COLS;
-  const cellHeight = image.naturalHeight / ROWS;
+  const cellWidth = image.naturalWidth / columnCount();
+  const cellHeight = image.naturalHeight / directionOrder().length;
   const row = rowForDirection(dir);
   const x = Math.round(column * cellWidth);
   const y = Math.round(row * cellHeight);
@@ -199,7 +217,7 @@ function cellRect(image, dir, column) {
 // 1 コマを等倍のオフスクリーンへ切り出してから拡大する。
 // シートを直接拡大すると、補間が隣のコマの端を拾って上下に線が出る。
 function frameCanvas(dir, column) {
-  const key = `${elements.rowOrder.value}:${dir}:${column}`;
+  const key = `${elements.frames.value}:${elements.rowOrder.value}:${dir}:${column}`;
   const cached = frameCache.get(key);
 
   if (cached) {
@@ -290,6 +308,10 @@ function drawStrip() {
   const column = currentColumn();
 
   stripContexts.forEach(({ canvas, context, direction: dir }) => {
+    if (canvas.closest(".strip-item").hidden) {
+      return;
+    }
+
     const { width, height } = resizeCanvas(canvas, context);
     context.clearRect(0, 0, width, height);
 
@@ -355,6 +377,22 @@ function setDirection(value) {
   elements.dpadButtons.forEach((button) => {
     button.setAttribute("aria-pressed", String(button.dataset.dir === value));
   });
+}
+
+// シートに無い向きは、矢印と 4 方向の表示から外す
+function updateDirections() {
+  const order = directionOrder();
+
+  elements.dpadButtons.forEach((button) => {
+    button.disabled = !order.includes(button.dataset.dir);
+  });
+  stripContexts.forEach(({ canvas, direction: dir }) => {
+    canvas.closest(".strip-item").hidden = !order.includes(dir);
+  });
+
+  if (!order.includes(direction)) {
+    setDirection(order[0]);
+  }
 }
 
 function setPlaying(value) {
@@ -469,8 +507,8 @@ function updateLayers() {
 
   const { image } = largestLayer();
   const label = layers.length === 1 ? layers[0].name : TEXT.layerCount(layers.length);
-  frameWidth = image.naturalWidth / COLS;
-  frameHeight = image.naturalHeight / ROWS;
+  frameWidth = image.naturalWidth / columnCount();
+  frameHeight = image.naturalHeight / directionOrder().length;
   elements.sheetInfo.textContent =
     `${label} · ${image.naturalWidth}×${image.naturalHeight} → ${TEXT.frame} ${formatSize(frameWidth)}×${formatSize(frameHeight)}`;
 }
@@ -637,6 +675,13 @@ elements.fps.addEventListener("input", () => {
   elements.fpsOut.textContent = elements.fps.value;
 });
 
+[elements.frames, elements.rowOrder].forEach((select) => {
+  select.addEventListener("change", () => {
+    updateDirections();
+    updateLayers();
+  });
+});
+
 elements.zoom.addEventListener("input", () => {
   const value = Number(elements.zoom.value);
   elements.zoomOut.textContent = value > 0 ? `×${value}` : TEXT.autoZoom;
@@ -651,7 +696,11 @@ window.addEventListener("keydown", (event) => {
 
   if (next) {
     event.preventDefault();
-    setDirection(next);
+
+    if (directionOrder().includes(next)) {
+      setDirection(next);
+    }
+
     return;
   }
 
@@ -662,5 +711,6 @@ window.addEventListener("keydown", (event) => {
 });
 
 setDirection("down");
+updateDirections();
 setPlaying(true);
 requestAnimationFrame(render);

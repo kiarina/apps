@@ -135,11 +135,20 @@
           </label>
 
           <label class="control">
+            <span class="control-label">コマ数</span>
+            <select id="frames">
+              <option value="2">2 コマ</option>
+              <option value="3" selected>3 コマ</option>
+              <option value="4">4 コマ</option>
+            </select>
+          </label>
+
+          <label class="control">
             <span class="control-label">コマ順</span>
             <select id="pattern">
-              <option value="pingpong">左 → 中 → 右 → 中（往復）</option>
-              <option value="loop">左 → 中 → 右（ループ）</option>
-              <option value="reverse">右 → 中 → 左（逆ループ）</option>
+              <option value="pingpong">往復（左 → 右 → 左）</option>
+              <option value="loop">ループ（左 → 右）</option>
+              <option value="reverse">逆ループ（右 → 左）</option>
             </select>
           </label>
 
@@ -150,6 +159,10 @@
               <option value="down,up,left,right">下 / 上 / 左 / 右</option>
               <option value="down,right,left,up">下 / 右 / 左 / 上</option>
               <option value="up,right,down,left">上 / 右 / 下 / 左</option>
+              <option value="down,up">下 / 上</option>
+              <option value="up,down">上 / 下</option>
+              <option value="down">下だけ</option>
+              <option value="up">上だけ</option>
             </select>
           </label>
 
@@ -196,6 +209,7 @@
         <h2>対応するスプライトシート</h2>
         <ul>
           <li>横 3 コマ × 縦 4 行の、1 キャラクター分のシート。画像の大きさは問いません（1 コマ = 幅 ÷ 3、高さ ÷ 4）。</li>
+          <li>2 コマ・4 コマのシートや、上下 2 方向だけ・1 方向だけのシートも、「コマ数」と「行の向き」で選べます。</li>
           <li>PNG など、ブラウザで開ける画像。透過もそのまま表示します。</li>
           <li>体・髪・服などに分かれたシートは、レイヤーとして重ねられます。複数のファイルをまとめて入れると、名前順に奥から重なります。大きさが違うときは、一番大きいシートの 1 コマに合わせます。</li>
           <li>シートを 1 枚ドロップすると、選択中のレイヤーを置き換えます。描き直したパーツの確認に便利です。</li>
@@ -207,7 +221,7 @@
           <li>上下左右の 4 方向の同時再生と、選んだ向きの大きな表示</li>
           <li>再生速度（1〜24 fps）と拡大率の調整</li>
           <li>パーツのレイヤー重ね（表示の切り替え、重なり順の変更）</li>
-          <li>コマ順の切り替え（往復・ループ・逆ループ）</li>
+          <li>コマ数（2〜4 コマ）とコマ順の切り替え（往復・ループ・逆ループ）</li>
           <li>1 コマずつの送り</li>
           <li>ドット絵の補間なし拡大、左右反転、1 コマの枠の表示</li>
           <li>画面内を歩かせての確認、チェッカー・明るい・暗い・マゼンタの背景</li>

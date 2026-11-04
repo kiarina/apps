@@ -135,11 +135,20 @@
           </label>
 
           <label class="control">
+            <span class="control-label">Frames</span>
+            <select id="frames">
+              <option value="2">2 frames</option>
+              <option value="3" selected>3 frames</option>
+              <option value="4">4 frames</option>
+            </select>
+          </label>
+
+          <label class="control">
             <span class="control-label">Frame order</span>
             <select id="pattern">
-              <option value="pingpong">Left → Middle → Right → Middle (ping-pong)</option>
-              <option value="loop">Left → Middle → Right (loop)</option>
-              <option value="reverse">Right → Middle → Left (reverse loop)</option>
+              <option value="pingpong">Ping-pong (left → right → left)</option>
+              <option value="loop">Loop (left → right)</option>
+              <option value="reverse">Reverse loop (right → left)</option>
             </select>
           </label>
 
@@ -150,6 +159,10 @@
               <option value="down,up,left,right">Down / Up / Left / Right</option>
               <option value="down,right,left,up">Down / Right / Left / Up</option>
               <option value="up,right,down,left">Up / Right / Down / Left</option>
+              <option value="down,up">Down / Up</option>
+              <option value="up,down">Up / Down</option>
+              <option value="down">Down only</option>
+              <option value="up">Up only</option>
             </select>
           </label>
 
@@ -196,6 +209,7 @@
         <h2>Supported sprite sheets</h2>
         <ul>
           <li>Single-character sheets with 3 columns and 4 rows, at any image size (one frame is width ÷ 3 by height ÷ 4).</li>
+          <li>Sheets with 2 or 4 frames, or with only up and down or a single direction, work too: pick them with “Frames” and “Row order”.</li>
           <li>PNG and any other image your browser can open. Transparency is preserved.</li>
           <li>Sheets split into parts such as body, hair and clothes can be stacked as layers. Files added together stack from back to front in name order. If sizes differ, each layer is fitted to the frame of the largest sheet.</li>
           <li>Dropping a single sheet replaces the selected layer, which is handy when you are redrawing a part.</li>
@@ -207,7 +221,7 @@
           <li>All four directions playing together, plus a large view of the selected direction</li>
           <li>Playback speed (1–24 fps) and zoom</li>
           <li>Layered parts, with visibility toggles and reordering</li>
-          <li>Frame order: ping-pong, loop or reverse loop</li>
+          <li>Frame count (2 to 4) and frame order: ping-pong, loop or reverse loop</li>
           <li>Stepping through one frame at a time</li>
           <li>Pixel art scaling without smoothing, horizontal flip and frame outlines</li>
           <li>Walking across the stage, on checker, light, dark or magenta backgrounds</li>
